@@ -1,0 +1,132 @@
+Project Title: AI-Powered Garbage Sorting Website
+
+Objective:
+To create a mobile-focused website that helps users classify garbage using AI-powered image recognition to promote proper waste disposal and recycling. The project is for a university course, and the solution must be entirely free to develop, optimized for mobile usage, and fast in performance.
+
+Overview:
+This website will allow users to take a photo of garbage through their mobile device’s camera or upload an image. The website will classify the garbage into categories such as “Recyclable”, “Non-Recyclable”, or “Compostable” using an AI image classification model. The solution aims to raise awareness about proper waste management and make recycling more accessible and actionable for users.
+
+Target Platform:
+A responsive and mobile-focused web application optimized for use on smartphones. The site will prioritize lightweight performance for fast responses, considering mobile hardware limitations.
+
+Key Features:
+
+Image Upload and Capture:
+
+Users can upload a garbage photo or capture an image directly using their mobile device camera.
+
+Use HTML5’s <input type="file" accept="image/*" capture="camera"> for seamless integration of the camera functionality.
+
+AI-Powered Garbage Classification:
+
+An AI model hosted for free (e.g., TensorFlow.js for client-side processing or a backend model hosted on free platforms like Hugging Face Spaces or Render).
+
+The model will classify garbage into predefined categories.
+
+Results Display:
+
+Display the classification result in an easy-to-understand format (e.g., “Recyclable: Plastic”).
+
+Provide educational tips for proper disposal based on the classification.
+
+Mobile Optimization:
+
+Design a clean and minimalistic UI with mobile-first principles.
+
+Ensure fast loading times with optimized images and lightweight JavaScript.
+
+No-Cost Development:
+
+Host the website using free services like GitHub Pages, Vercel, or Netlify.
+
+Use open-source libraries and tools for AI integration.
+
+Website Flow:
+
+Home Page:
+
+Title and brief introduction to the purpose of the website.
+
+Button to capture a photo or upload an image.
+
+Image Capture/Upload Page:
+
+Input field for image upload or camera capture.
+
+Submit button to process the image.
+
+Processing Page:
+
+Show a loading animation while the image is being analyzed.
+
+Backend or TensorFlow.js processes the image and predicts the category.
+
+Results Page:
+
+Display the category of the garbage (e.g., “Recyclable: Glass”).
+
+Provide disposal tips and suggestions for recycling.
+
+Technical Stack:
+
+Frontend:
+
+Framework: React.js (for fast, responsive UI development).
+
+Mobile Optimization: Tailwind CSS for a responsive and clean design.
+
+Backend (if needed):
+
+Node.js with Express for REST API (hosted for free on Render or Cyclic).
+
+AI Model:
+
+Pre-trained TensorFlow.js model for client-side garbage classification.
+
+Alternatively, deploy a lightweight model on Hugging Face Spaces (free tier).
+
+Hosting:
+
+Vercel, Netlify, or GitHub Pages for free and reliable web hosting.
+
+Storage (if required):
+
+Firebase Free Tier or client-side storage (local storage) to manage temporary image data.
+
+Development Plan:
+
+Week 1:
+
+Research and select a pre-trained AI model for garbage classification (e.g., TrashNet dataset models).
+
+Set up the React.js project with Tailwind CSS.
+
+Week 2:
+
+Integrate image upload and camera capture functionality.
+
+Implement AI model integration (TensorFlow.js or backend).
+
+Week 3:
+
+Design and develop the results page with educational tips.
+
+Optimize the website for mobile performance.
+
+Week 4:
+
+Testing and debugging.
+
+Deploy the website to a free hosting platform.
+
+Additional Notes:
+
+Ensure accessibility features like alt text for images and proper contrast for readability.
+
+The AI model should be lightweight to avoid performance issues on mobile devices.
+
+Keep the design minimal to focus on functionality and speed.
+
+Expected Outcome:
+A fully functional, mobile-focused website that enables users to classify garbage using AI, promoting proper waste management and recycling practices. The project will be entirely free to develop and hosted on free platforms for accessibility.
+
