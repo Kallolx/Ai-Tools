@@ -13,7 +13,7 @@ const Navbar = () => {
             </div>
             <div>
               <p className="text-sm text-gray-400 font-medium">Hi,</p>
-              <h2 className="font-semibold text-[15px]">Alex 👋</h2>
+              <h2 className="font-semibold text-[15px]">Kallol 👋</h2>
             </div>
           </div>
           <div className="flex items-center space-x-4">

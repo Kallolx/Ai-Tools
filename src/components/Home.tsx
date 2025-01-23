@@ -12,15 +12,15 @@ interface Tool {
 export const tools: Tool[] = [
   {
     id: 'garbage-sorter',
-    title: 'AI Garbage Sorter',
-    description: 'Smart waste classification to improve recycling efforts and reduce environmental impact',
+    title: 'Garbage Sorter',
+    description: 'AI-powered waste classification',
     iconUrl: '/icons/garbage.png',
     color: 'from-emerald-500/20 to-emerald-500/5'
   },
   {
-    id: 'energy-tracker',
-    title: 'Energy Tracker',
-    description: 'Track and optimize energy consumption with AI-powered insights',
+    id: 'energy',
+    title: 'Energy Analysis',
+    description: 'Optimize your energy usage with AI',
     iconUrl: '/icons/energy.png',
     color: 'from-amber-500/20 to-amber-500/5'
   },
@@ -68,20 +68,6 @@ const CircleAnimation = () => (
   </div>
 )
 
-const RecordingAnimation = () => (
-  <div className="absolute -inset-4 flex items-center justify-center overflow-hidden">
-    <div className="relative">
-      {/* Outer expanding circle */}
-      <div className="absolute inset-0 rounded-full bg-accent-primary/10 animate-expand-slow" />
-      {/* Inner circles */}
-      <div className="w-16 h-16 rounded-full bg-dark-800/80 backdrop-blur-lg flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full bg-accent-primary/20 flex items-center justify-center">
-          <div className="w-3 h-3 rounded-full bg-accent-primary animate-pulse" />
-        </div>
-      </div>
-    </div>
-  </div>
-)
 
 const AudioVisualizer = ({ analyzer }: { analyzer: AnalyserNode }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -229,6 +215,8 @@ const Home = () => {
   const handleToolClick = (toolId: string) => {
     if (toolId === 'garbage-sorter') {
       navigate('/upload')
+    } else if (toolId === 'energy') {
+      navigate('/energy')
     }
   }
 
