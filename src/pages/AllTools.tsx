@@ -5,8 +5,8 @@ const AllTools = () => {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-dark-900 pb-24">
-      <div className="px-4 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-dark-900 pt-20 pb-24">
+      <div className="max-w-5xl mx-auto px-4">
         {/* Header */}
         <div className="flex items-center space-x-4 mb-6">
           <button 

@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { analyzeWasteImage } from '../services/gemini'
+import { usePoint,hasEnoughPoints } from '../services/points'
 
 const ImageUpload = () => {
   const [isDragging, setIsDragging] = useState(false)
@@ -135,23 +136,51 @@ const ImageUpload = () => {
     }
   }, [])
 
-  const handleAnalyze = useCallback(async () => {
+  const handleAnalyze = async () => {
     if (!imageFile) return
-
+    
     try {
+      // Check if user has enough points
+      const hasPoints = await hasEnoughPoints()
+      if (!hasPoints) {
+        setError('Not enough points to analyze image')
+        return
+      }
+
       setIsAnalyzing(true)
       setError(null)
+
+      // Use a point before analysis
+      const pointUsed = await usePoint()
+      if (!pointUsed) {
+        setError('Failed to use point')
+        return
+      }
+
+      // Create image URL
+      const imageUrl = URL.createObjectURL(imageFile)
+      
+      // Analyze image
       const result = await analyzeWasteImage(imageFile)
-      navigate('/result', { state: { result, imageUrl: image } })
+      
+      // Navigate to results
+      navigate('/result', { 
+        state: { 
+          result,
+          imageUrl
+        } 
+      })
     } catch (error) {
+      console.error('Error analyzing image:', error)
       setError('Failed to analyze image. Please try again.')
+    } finally {
       setIsAnalyzing(false)
     }
-  }, [imageFile, image, navigate])
+  }
 
   return (
-    <div className="min-h-screen bg-dark-900 pt-4 pb-24">
-      <div className="px-4 max-w-3xl mx-auto">
+    <div className="min-h-screen bg-dark-900 pt-20 pb-24">
+      <div className="max-w-5xl mx-auto px-4">
         {/* Header */}
         <div className="flex items-center space-x-4 mb-6">
           <button 

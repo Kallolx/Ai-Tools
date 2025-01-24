@@ -8,6 +8,8 @@ import AnalysisResult from './pages/AnalysisResult'
 import EnergyAnalysis from './pages/EnergyAnalysis'
 import SolarAnalysis from './pages/SolarAnalysis'
 import SolarResult from './pages/SolarResult'
+import Login from './pages/Login'
+import Settings from './pages/Settings'
 
 const AppContent = () => {
   const location = useLocation()
@@ -27,6 +29,8 @@ const AppContent = () => {
           <Route path="/energy" element={<EnergyAnalysis />} />
           <Route path="/energy/solar" element={<SolarAnalysis />} />
           <Route path="/energy/solar/result" element={<SolarResult />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
       </main>
       {!hideBottomNav && <BottomNav />}

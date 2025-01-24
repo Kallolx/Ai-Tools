@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { sendChatMessage } from '../services/chat'
 
 interface Message {
   id: string
@@ -6,6 +7,7 @@ interface Message {
   isUser: boolean
   timestamp: Date
   isLoading?: boolean
+  attachments?: File[]
 }
 
 interface Suggestion {
@@ -17,20 +19,22 @@ export default function ChatPage({ isOpen, onClose }: { isOpen: boolean; onClose
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [attachments, setAttachments] = useState<File[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const suggestions: Suggestion[] = [
     {
-      text: "Explain how solar panels work",
+      text: "What tools are available?",
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-          <path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM10 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15zM10 7a3 3 0 100 6 3 3 0 000-6zM15.657 5.404a.75.75 0 10-1.06-1.06l-1.061 1.06a.75.75 0 001.06 1.06l1.06-1.06zM6.464 14.596a.75.75 0 10-1.06-1.06l-1.06 1.06a.75.75 0 001.06 1.06l1.06-1.06zM18 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0118 10zM5 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 015 10zM14.596 15.657a.75.75 0 001.06-1.06l-1.06-1.061a.75.75 0 10-1.06 1.06l1.06 1.06zM5.404 6.464a.75.75 0 001.06-1.06l-1.06-1.06a.75.75 0 10-1.061 1.06l1.06 1.06z" />
+          <path fillRule="evenodd" d="M2 3.75A.75.75 0 012.75 3h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 3.75zm0 4.167a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0 4.166a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0 4.167a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clipRule="evenodd" />
         </svg>
       )
     },
     {
-      text: "Help me sort my waste",
+      text: "Help me sort waste",
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
           <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clipRule="evenodd" />
@@ -44,6 +48,15 @@ export default function ChatPage({ isOpen, onClose }: { isOpen: boolean; onClose
           <path d="M11.983 1.907a.75.75 0 00-1.292-.657l-8.5 9.5A.75.75 0 002.75 12h6.572l-1.305 6.093a.75.75 0 001.292.657l8.5-9.5A.75.75 0 0017.25 8h-6.572l1.305-6.093z" />
         </svg>
       )
+    },
+    {
+      text: "What's coming soon?",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+          <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
+          <path fillRule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+        </svg>
+      )
     }
   ]
 
@@ -52,7 +65,7 @@ export default function ChatPage({ isOpen, onClose }: { isOpen: boolean; onClose
       setMessages([
         {
           id: '1',
-          content: "Hi! I'm your AI assistant. I can help you with waste sorting, energy analysis, and more. How can I assist you today?",
+          content: "Hello! 👋 I'm your AI assistant for the AI Tools Hub. I can help you with:\n\n🗑️ Garbage Sorting - I'll analyze images of waste items and help you sort them correctly\n\n⚡ Energy Analysis - From solar panel recommendations to energy efficiency tips\n\n💡 Future Features - Ask me about upcoming tools and features!\n\nHow can I assist you today?",
           isUser: false,
           timestamp: new Date()
         }
@@ -69,17 +82,19 @@ export default function ChatPage({ isOpen, onClose }: { isOpen: boolean; onClose
   }
 
   const handleSend = async () => {
-    if (!input.trim()) return
+    if (!input.trim() && attachments.length === 0) return
 
     const userMessage: Message = {
       id: Date.now().toString(),
       content: input.trim(),
       isUser: true,
-      timestamp: new Date()
+      timestamp: new Date(),
+      attachments
     }
 
     setMessages(prev => [...prev, userMessage])
     setInput('')
+    setAttachments([])
     setIsLoading(true)
 
     // Add typing indicator
@@ -92,18 +107,43 @@ export default function ChatPage({ isOpen, onClose }: { isOpen: boolean; onClose
     }
     setMessages(prev => [...prev, loadingMessage])
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const response = await sendChatMessage(input.trim(), attachments)
       setMessages(prev => prev.filter(msg => msg.id !== 'loading'))
+      
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "I'm here to help! This is a simulated response for now. We'll integrate real AI responses soon.",
+        content: response,
         isUser: false,
         timestamp: new Date()
       }
       setMessages(prev => [...prev, aiMessage])
+    } catch (error) {
+      setMessages(prev => prev.filter(msg => msg.id !== 'loading'))
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: (error as Error).message,
+        isUser: false,
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
       setIsLoading(false)
-    }, 1500)
+    }
+  }
+
+  const handleAttachment = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    setAttachments(prev => [...prev, ...files])
+    e.target.value = '' // Reset input
+  }
+
+  const removeAttachment = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -180,7 +220,20 @@ export default function ChatPage({ isOpen, onClose }: { isOpen: boolean; onClose
                     <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.4s' }} />
                   </div>
                 ) : (
-                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  <>
+                    {message.attachments?.map((file, index) => (
+                      <div key={index} className="mb-2">
+                        {file.type.startsWith('image/') && (
+                          <img 
+                            src={URL.createObjectURL(file)} 
+                            alt={`Attachment ${index + 1}`}
+                            className="max-w-full rounded-lg"
+                          />
+                        )}
+                      </div>
+                    ))}
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                  </>
                 )}
               </div>
               {message.isUser && (
@@ -218,9 +271,56 @@ export default function ChatPage({ isOpen, onClose }: { isOpen: boolean; onClose
         </div>
       )}
 
+      {/* Attachments Preview */}
+      {attachments.length > 0 && (
+        <div className="fixed bottom-32 left-0 right-0 px-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {attachments.map((file, index) => (
+                <div key={index} className="relative flex-shrink-0">
+                  {file.type.startsWith('image/') && (
+                    <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-dark-800 ring-1 ring-white/5">
+                      <img 
+                        src={URL.createObjectURL(file)} 
+                        alt={`Attachment ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        onClick={() => removeAttachment(index)}
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-dark-900/80 flex items-center justify-center"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 text-white">
+                          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Input */}
       <div className="fixed bottom-0 left-0 right-0 bg-dark-800/50 backdrop-blur-lg border-t border-white/5 p-4">
         <div className="max-w-3xl mx-auto flex items-end space-x-4">
+          <button
+            onClick={handleAttachment}
+            className="w-10 h-10 rounded-xl bg-dark-800 ring-1 ring-white/5 flex items-center justify-center hover:ring-accent-primary/20 transition-all"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-gray-400">
+              <path fillRule="evenodd" d="M15.621 4.379a3 3 0 00-4.242 0l-7 7a3 3 0 004.241 4.243h.001l.497-.5a.75.75 0 011.064 1.057l-.498.501-.002.002a4.5 4.5 0 01-6.364-6.364l7-7a4.5 4.5 0 016.368 6.36l-3.455 3.553A2.625 2.625 0 119.52 9.52l3.45-3.451a.75.75 0 111.061 1.06l-3.45 3.451a1.125 1.125 0 001.587 1.595l3.454-3.553a3 3 0 000-4.242z" clipRule="evenodd" />
+            </svg>
+          </button>
+          <input 
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileSelect}
+            accept="image/*"
+            className="hidden"
+            multiple
+          />
           <div className="flex-1 bg-dark-800 rounded-xl ring-1 ring-white/5">
             <textarea
               ref={inputRef}
@@ -238,7 +338,7 @@ export default function ChatPage({ isOpen, onClose }: { isOpen: boolean; onClose
           </div>
           <button
             onClick={handleSend}
-            disabled={!input.trim() || isLoading}
+            disabled={(!input.trim() && attachments.length === 0) || isLoading}
             className="w-12 h-12 rounded-xl bg-accent-primary text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent-primary/90 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">

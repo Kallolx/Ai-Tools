@@ -221,88 +221,90 @@ const Home = () => {
   }
 
   return (
-    <div className="flex flex-col space-y-6 pb-24">
-      {/* 3D Model Section */}
-      <div className="relative h-[280px] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-dark-900 via-dark-900/50 to-dark-900/20 z-0" />
-        <div className="absolute inset-0">
-          {!isSplineLoaded && !hasSplineError && (
-            <div className="flex items-center justify-center h-full">
-              <CircleAnimation />
-            </div>
-          )}
-          {!hasSplineError && (
-            <spline-viewer 
-              url="https://prod.spline.design/6Jd-zkzBMZsBusM2/scene.splinecode"
-              className={`w-full h-[280px] transition-opacity duration-500 ${isSplineLoaded ? 'opacity-100' : 'opacity-0'}`}
-              style={{ pointerEvents: 'none' }}
-            />
-          )}
-          {hasSplineError && (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center px-4">
-                <div className="w-16 h-16 rounded-full bg-dark-800/80 backdrop-blur-sm flex items-center justify-center mx-auto mb-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-accent-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <p className="text-sm text-gray-400">Interactive 3D model unavailable</p>
+    <div className="min-h-screen bg-dark-900 pt-20 pb-24">
+      <div className="max-w-5xl mx-auto px-4">
+        {/* 3D Model Section */}
+        <div className="relative h-[280px] overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-dark-900 via-dark-900/50 to-dark-900/20 z-0" />
+          <div className="absolute inset-0">
+            {!isSplineLoaded && !hasSplineError && (
+              <div className="flex items-center justify-center h-full">
+                <CircleAnimation />
               </div>
-            </div>
-          )}
-        </div>
-        <div className="absolute bottom-6 left-6 z-10">
-          <button 
-            onPointerDown={startRecording}
-            onPointerUp={stopRecording}
-            onPointerLeave={stopRecording}
-            className="relative bg-dark-800/40 backdrop-blur-sm px-4 py-2 rounded-2xl ring-1 ring-white/10 flex items-center space-x-2 hover:bg-dark-800/60 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 transition-colors ${isRecording ? 'text-red-500' : 'text-accent-primary'}`} viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
-            </svg>
-            <span className="text-sm font-medium text-white">Hold to talk</span>
-            {isRecording && analyzer && <AudioVisualizer analyzer={analyzer} />}
-          </button>
-        </div>
-      </div>
-
-      {/* Explore Section */}
-      <div className="px-4 space-y-4 max-w-7xl mx-auto w-full">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">Explore</h2>
-          <a 
-            href="/all-tools" 
-            className="flex items-center space-x-1 text-accent-primary hover:text-accent-primary/80 transition-colors"
-          >
-            <span className="text-sm font-medium">View All</span>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-              <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
-            </svg>
-          </a>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-          {tools.map((tool) => (
-            <div 
-              key={tool.id}
-              onClick={() => handleToolClick(tool.id)}
-              className="group bg-dark-800/50 backdrop-blur-sm rounded-2xl p-5 md:p-6 ring-1 ring-white/5 hover:ring-accent-primary/20 transition-all hover:-translate-y-0.5 cursor-pointer min-h-[160px] md:min-h-[180px]"
+            )}
+            {!hasSplineError && (
+              <spline-viewer 
+                url="https://prod.spline.design/6Jd-zkzBMZsBusM2/scene.splinecode"
+                className={`w-full h-[280px] transition-opacity duration-500 ${isSplineLoaded ? 'opacity-100' : 'opacity-0'}`}
+                style={{ pointerEvents: 'none' }}
+              />
+            )}
+            {hasSplineError && (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center px-4">
+                  <div className="w-16 h-16 rounded-full bg-dark-800/80 backdrop-blur-sm flex items-center justify-center mx-auto mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-accent-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-gray-400">Interactive 3D model unavailable</p>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="absolute bottom-6 left-6 z-10">
+            <button 
+              onPointerDown={startRecording}
+              onPointerUp={stopRecording}
+              onPointerLeave={stopRecording}
+              className="relative bg-dark-800/40 backdrop-blur-sm px-4 py-2 rounded-2xl ring-1 ring-white/10 flex items-center space-x-2 hover:bg-dark-800/60 transition-colors"
             >
-              <div className="flex flex-col h-full">
-                <div className="transition-transform group-hover:scale-110 mb-3 md:mb-4">
-                  <img 
-                    src={tool.iconUrl} 
-                    alt={tool.title}
-                    className="w-12 h-12 md:w-10 md:h-10 object-contain"
-                  />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white text-[15px] mb-2">{tool.title}</h3>
-                  <p className="text-sm text-gray-400 leading-relaxed line-clamp-2">{tool.description}</p>
+              <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 transition-colors ${isRecording ? 'text-red-500' : 'text-accent-primary'}`} viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
+              </svg>
+              <span className="text-sm font-medium text-white">Hold to talk</span>
+              {isRecording && analyzer && <AudioVisualizer analyzer={analyzer} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Explore Section */}
+        <div className="px-4 space-y-4 max-w-7xl mx-auto w-full">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-white">Explore</h2>
+            <a 
+              href="/all-tools" 
+              className="flex items-center space-x-1 text-accent-primary hover:text-accent-primary/80 transition-colors"
+            >
+              <span className="text-sm font-medium">View All</span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
+              </svg>
+            </a>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+            {tools.map((tool) => (
+              <div 
+                key={tool.id}
+                onClick={() => handleToolClick(tool.id)}
+                className="group bg-dark-800/50 backdrop-blur-sm rounded-2xl p-5 md:p-6 ring-1 ring-white/5 hover:ring-accent-primary/20 transition-all hover:-translate-y-0.5 cursor-pointer min-h-[160px] md:min-h-[180px]"
+              >
+                <div className="flex flex-col h-full">
+                  <div className="transition-transform group-hover:scale-110 mb-3 md:mb-4">
+                    <img 
+                      src={tool.iconUrl} 
+                      alt={tool.title}
+                      className="w-12 h-12 md:w-10 md:h-10 object-contain"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white text-[15px] mb-2">{tool.title}</h3>
+                    <p className="text-sm text-gray-400 leading-relaxed line-clamp-2">{tool.description}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
