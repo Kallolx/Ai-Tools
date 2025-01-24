@@ -25,4 +25,45 @@ CREATE POLICY "Users can update their own points"
 
 CREATE POLICY "Users can insert their own points"
   ON user_points FOR INSERT
-  WITH CHECK (auth.uid() = user_id); 
+  WITH CHECK (auth.uid() = user_id);
+
+-- Add policy for deduct_point function
+CREATE POLICY "Allow point deduction through function"
+  ON user_points
+  FOR UPDATE
+  USING (true)
+  WITH CHECK (true);
+
+-- Create function for atomic point deduction
+CREATE OR REPLACE FUNCTION deduct_point(user_id_input UUID, points_to_deduct INTEGER)
+RETURNS BOOLEAN
+AS $$
+DECLARE
+  rows_affected INTEGER;
+  current_points INTEGER;
+  is_pro_user BOOLEAN;
+BEGIN
+  -- First get current points and pro status
+  SELECT points, is_pro INTO current_points, is_pro_user
+  FROM user_points
+  WHERE user_id = user_id_input;
+  
+  RAISE NOTICE 'User ID: %, Current Points: %, Is Pro: %, Points to Deduct: %', 
+    user_id_input, current_points, is_pro_user, points_to_deduct;
+
+  UPDATE user_points
+  SET points = points - points_to_deduct
+  WHERE user_id = user_id_input
+    AND points >= points_to_deduct
+    AND NOT is_pro;
+    
+  GET DIAGNOSTICS rows_affected = ROW_COUNT;
+  
+  RAISE NOTICE 'Rows affected: %', rows_affected;
+  
+  RETURN rows_affected > 0;
+END;
+$$
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public; 

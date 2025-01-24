@@ -167,37 +167,72 @@ export async function completeTask(taskId: string, pointReward: number): Promise
 
 export async function usePoint(): Promise<boolean> {
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return false
-
-  const { data: userPoints } = await supabase
-    .from('user_points')
-    .select('*')
-    .eq('user_id', user.id)
-    .single()
-
-  if (!userPoints) return false
-
-  // Pro users don't consume points
-  if (userPoints.is_pro) return true
-
-  // Check if user has enough points
-  if (userPoints.points >= TOOL_COST) {
-    // Deduct points
-    const newPoints = userPoints.points - TOOL_COST
-    const { data } = await supabase
-      .from('user_points')
-      .update({ points: newPoints })
-      .eq('user_id', user.id)
-      .select()
-      .single()
-
-    if (data) {
-      dispatchPointsUpdate(newPoints)
-      return true
-    }
+  if (!user) {
+    console.log('No user found')
+    return false
   }
 
-  return false
+  try {
+    // First check if user has enough points
+    const { data: userPoints, error: fetchError } = await supabase
+      .from('user_points')
+      .select('*')
+      .eq('user_id', user.id)
+      .single()
+
+    console.log('Current points:', userPoints?.points)
+    console.log('Is pro user:', userPoints?.is_pro)
+
+    if (fetchError || !userPoints) {
+      console.error('Error fetching points:', fetchError)
+      return false
+    }
+
+    // Pro users don't consume points
+    if (userPoints.is_pro) {
+      console.log('Pro user - no points deducted')
+      return true
+    }
+
+    // Check if user has enough points
+    if (userPoints.points >= TOOL_COST) {
+      console.log('Attempting to deduct', TOOL_COST, 'points')
+      
+      // Use decrement for atomic update
+      const { data, error: updateError } = await supabase.rpc('deduct_point', {
+        user_id_input: user.id,
+        points_to_deduct: TOOL_COST
+      })
+
+      console.log('Deduction result:', data)
+      
+      if (updateError) {
+        console.error('Error deducting points:', updateError)
+        return false
+      }
+
+      // Get updated points after deduction
+      const { data: updatedPoints } = await supabase
+        .from('user_points')
+        .select('points')
+        .eq('user_id', user.id)
+        .single()
+
+      console.log('Points after deduction:', updatedPoints?.points)
+
+      if (updatedPoints) {
+        dispatchPointsUpdate(updatedPoints.points)
+        return true
+      }
+    } else {
+      console.log('Not enough points. Current:', userPoints.points, 'Required:', TOOL_COST)
+    }
+
+    return false
+  } catch (error) {
+    console.error('Error in usePoint:', error)
+    return false
+  }
 }
 
 export const addPoints = (amount: number) => {

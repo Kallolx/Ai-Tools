@@ -2,13 +2,14 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { analyzeWasteImage } from '../services/gemini'
 import { usePoint,hasEnoughPoints } from '../services/points'
+import { supabase } from '../services/supabase'
 
 const ImageUpload = () => {
   const [isDragging, setIsDragging] = useState(false)
   const [image, setImage] = useState<string | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | JSX.Element | null>(null)
   const [isCameraOpen, setIsCameraOpen] = useState(false)
   const [hasCamera, setHasCamera] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -138,42 +139,57 @@ const ImageUpload = () => {
 
   const handleAnalyze = async () => {
     if (!imageFile) return
+
+    // Check if user is authenticated
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      setError(
+        <div className="flex items-center space-x-3">
+          <span className="text-white">Sign in to get 10 free points</span>
+          <button
+            onClick={() => navigate('/login')}
+            className="px-4 py-1.5 rounded-xl bg-accent-primary text-white text-sm font-medium hover:bg-accent-primary/90 transition-colors"
+          >
+            Sign in
+          </button>
+        </div>
+      )
+      return
+    }
     
     try {
-      // Check if user has enough points
+      // Check if user has enough points first
       const hasPoints = await hasEnoughPoints()
       if (!hasPoints) {
         setError('Not enough points to analyze image')
+        setIsAnalyzing(false)
         return
       }
 
       setIsAnalyzing(true)
       setError(null)
 
-      // Use a point before analysis
+      // Deduct point before analysis
       const pointUsed = await usePoint()
       if (!pointUsed) {
         setError('Failed to use point')
+        setIsAnalyzing(false)
         return
       }
 
-      // Create image URL
-      const imageUrl = URL.createObjectURL(imageFile)
-      
-      // Analyze image
+      // Proceed with analysis
       const result = await analyzeWasteImage(imageFile)
       
-      // Navigate to results
+      // Navigate to result page
       navigate('/result', { 
         state: { 
           result,
-          imageUrl
+          imageUrl: image 
         } 
       })
     } catch (error) {
-      console.error('Error analyzing image:', error)
+      console.error('Analysis error:', error)
       setError('Failed to analyze image. Please try again.')
-    } finally {
       setIsAnalyzing(false)
     }
   }
@@ -213,18 +229,6 @@ const ImageUpload = () => {
             </div>
           </div>
         </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-500/10 text-red-500 px-4 py-3 rounded-xl text-sm mb-4">
-            <div className="flex items-start space-x-2">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 flex-shrink-0 mt-0.5">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
-              </svg>
-              <span>{error}</span>
-            </div>
-          </div>
-        )}
 
         {/* Camera View */}
         {isCameraOpen && (
@@ -303,8 +307,8 @@ const ImageUpload = () => {
           </div>
         )}
 
-        {/* Action Button */}
-        {image && !isCameraOpen && (
+        {/* Action Buttons */}
+        {image && (
           <div className="flex space-x-3 mt-4">
             <button
               onClick={() => {
@@ -320,8 +324,24 @@ const ImageUpload = () => {
               disabled={isAnalyzing}
               className="flex-1 py-3 rounded-xl bg-accent-primary text-white font-medium hover:bg-accent-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isAnalyzing ? 'Analyzing...' : 'Analyze'}
+              {isAnalyzing ? 'Analyzing...' : 'Analyze Image'}
             </button>
+          </div>
+        )}
+
+        {/* Error Message (moved to bottom) */}
+        {error && (
+          <div className="mt-6 flex justify-center">
+            {typeof error === 'string' ? (
+              <div className="flex items-start space-x-2 text-red-500">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 flex-shrink-0 mt-0.5">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+                </svg>
+                <span>{error}</span>
+              </div>
+            ) : (
+              error
+            )}
           </div>
         )}
       </div>
