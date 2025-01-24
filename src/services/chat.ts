@@ -60,7 +60,7 @@ export async function sendChatMessage(message: string, attachments: File[] = [])
       
       parts.push("\n\nFor each image, give only: 1) Category 2) One disposal tip")
       attachmentParts.forEach((part, index) => {
-        parts.push(`\nImage ${index + 1}: Classify and give ONE tip.`)
+        parts.push(`\nImage ${index + 1}: ${part}`)
       })
     }
 
